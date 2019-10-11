@@ -75,4 +75,3 @@ def reset_config_parameters(dbname):
         except TypeError:
             # odoo < 10
             env.registry("ir.config_parameter").init(env.cr, force=True)
-
