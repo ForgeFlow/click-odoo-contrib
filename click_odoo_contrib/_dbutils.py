@@ -5,7 +5,7 @@
 import hashlib
 from contextlib import contextmanager
 
-from click_odoo import odoo
+from click_odoo import OdooEnvironment, odoo
 
 
 @contextmanager
@@ -61,3 +61,18 @@ def advisory_lock(cr, name):
         yield
     finally:
         cr.execute("SELECT pg_advisory_unlock(%s::bigint)", (lock_id,))
+
+
+def reset_config_parameters(dbname):
+    """
+    Reset config parameters to default value. This is useful to avoid
+    conflicts between databases on copy or restore
+    (dbuuid, ...)
+    """
+    with OdooEnvironment(dbname) as env:
+        try:
+            env["ir.config_parameter"].init(force=True)
+        except TypeError:
+            # odoo < 10
+            env.registry("ir.config_parameter").init(env.cr, force=True)
+
